@@ -12,14 +12,24 @@ die() {
     exit 1
 }
 
+need_cmd() {
+    command -v "$1" >/dev/null 2>&1
+}
+
 # Ensure xbps is usable
 if ! need_cmd xbps-install; then
     die "'xbps-install' not found. Certify that you're running this inside a Void Linux live CD."
 fi
 
-# Update xbps itself and also download the required tool
+# Update xbps itself first
 printf 'Updating xbps...\n'
-xbps-install -Syu xbps git
+xbps-install -Syu xbps
+
+# Install required tools
+if ! need_cmd git; then
+    printf 'Installing git...\n'
+    sudo xbps-install -y git
+fi
 
 # Clone repo
 if [ -d "$TARGET_DIR/.git" ]; then
